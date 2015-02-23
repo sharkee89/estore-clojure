@@ -7,6 +7,9 @@
               :user "root"
               :password ""})
 
+(defn parse-int [s]
+   (Integer. (re-find  #"\d+" s )))
+
 (defn list-categories []
   (sql/query db ["SELECT * FROM category"])
   )
@@ -20,3 +23,17 @@
   (def query (str "SELECT * FROM `product` WHERE productid = " productid))
   (sql/query db [query])
   )
+
+(defn login-user[username password]
+  (def query (str "SELECT `id` FROM `user` WHERE `username` = '" username "' AND `password` = '" password "'"))
+  (def score (sql/query db [query]))
+  (empty? score)
+ )
+
+
+
+
+
+(defn save-checkout [iduser idorder date address city]
+	(sql/db-do-prepared db "INSERT INTO `order`(`order_id`, `user_id`, `date`, `shipping_address`, `shipping_city`) VALUES (?,?,?,?,?)" [idorder iduser date address city])
+ )

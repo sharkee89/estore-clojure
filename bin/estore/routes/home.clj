@@ -19,7 +19,7 @@
      
      
      [:h1 (str "Basket Default: " (session/get :basket))]
-     
+     [:a {:href "/shipping-address"} "Checkout"]
 	  ))
 
 (defn category-page [category_id]
@@ -31,7 +31,7 @@
 		   [:a {:href (str "/product/" productid)} name]
 		  ])]
     [:h1 (str "User: " (session/get :user))]
-    [:h1 (str "Basket: " (get (session/get :basket) :secondProduct))]
+    [:h1 (str "Basket Default: " (session/get :basket))]
     
     ))
 
@@ -66,14 +66,36 @@
           [:br]
           (submit-button "Login"))))
 
+(defn shipping-address [& [address city]]
+  (layout/common
+    [:h3 "Input your shipping information"]
+    (form-to [:post "/save-order"]
+          [:p "Address:"]
+          (text-field "address" address)
+          [:p "City:"]
+          (text-field "city" city)
+          [:br]
+          (submit-button "Make an order"))
+    
+    [:h1 (str "User: " (session/get :user))]
+    [:h1 (str "Basket Default: " (session/get :basket))]
+    
+    )
+  )
+
+(defn not-found []
+  [:h1 "not found"]
+  )
+
 (defroutes home-routes
-  (GET "/login" [] (login-page))
-  (POST "/login" [user pass]
-  (session/put! :user user)(home))
-  (GET "/logout" [] 
-  (session/clear!)(home))
-  (GET "/" [] (if (empty? (session/get :basket)) (session/put! :basket {}))(home))
-  (GET "/category/:category_id" [category_id] (category-page category_id))
-  (GET "/product/:product-id" [product-id] (product-page product-id))
-  (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice" [productid name quantity price overallprice] (println (str "NAME IS " name)) (def b (array-map (session/get :basket) {:id productid :name name :quantity quantity :price price :overallprice overallprice})) (session/put! :basket b) (println (str "BBB" b)) (println (session/get :basket)) (home))
+ (GET "/login" [] (login-page))
+ (POST "/login" [user pass](def condition (login-user user pass))(cond (condition)(not-found) :else ((session/put! :user user)(home))))             
+ (GET "/logout" [] 
+ (session/clear!)(home))
+ (GET "/" [] (home))
+ (GET "/category/:category_id" [category_id] (category-page category_id))
+ (GET "/product/:product-id" [product-id] (product-page product-id))
+ (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice" [productid name quantity price overallprice] (println (str "NAME IS " name)) (def b (if (empty? (session/get :basket))(hash-map :product {:id productid :name name :quantity quantity :price price :overallprice overallprice})(array-map (session/get :basket) (hash-map :product {:id productid :name name :quantity quantity :price price :overallprice overallprice}))))(session/put! :basket b) (println (str "BBB" b)) (println (session/get :basket)) (home))
+ (GET "/shipping-address" [] (shipping-address))
+ (POST "/save-order" [address city] (println (str "FROM CALL " address city))(save-checkout 1 1 "2015-05-05" address city)(home))
  )

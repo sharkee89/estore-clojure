@@ -1,0 +1,2 @@
+cmdhistory=["(for [[k v] {1 2 3 4}] (println \\"ssss\\"))" "(for [[k v] {1 2 3 4}] (println (str k \\" \\" v)))" "(for [[k v] {\:a 2 \:b 4}] (println (str k \\" \\" v)))" "\=> (for [[k v] {\:a 2 \:b 4}] (println (str v)))" "\=> (for [[k v] {\:a 2 \:b 4}] (println v))" "(for [[k v] {\:a 2 \:b 4}] (println v))" "(for [[k v] {\:a 2 \:b 4}] (println k))"]
+eclipse.preferences.version=1
