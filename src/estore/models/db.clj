@@ -34,6 +34,6 @@
 
 
 
-(defn save-checkout [iduser idorder date address city]
-	(sql/db-do-prepared db "INSERT INTO `order`(`order_id`, `user_id`, `date`, `shipping_address`, `shipping_city`) VALUES (?,?,?,?,?)" [idorder iduser date address city])
+(defn save-checkout [iduser date address city]
+	(sql/db-do-prepared db "INSERT INTO `order`(`user_id`, `date`, `shipping_address`, `shipping_city`) VALUES (?,?,?,?)" [iduser date address city])
  )
