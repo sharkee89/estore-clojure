@@ -92,10 +92,10 @@
 
 (defn sss []
   (layout/common
-  (def mapa {:a {:name "Red pants", :overallprice "25.25", :id "1", :quantity "1", :price "25.25"} :b {:name "Blue pants", :overallprice "62.52", :id "2", :quantity "2", :price "31.26"}})
-  (doseq [keyval mapa] (prn keyval))
-  [:h1 (get mapa :ime)]
-  [:h1 (get mapa :prezime)]
+  (def mapa [{:name "Red pants", :overallprice "25.25", :id "1", :quantity "1", :price "25.25"}{:name "Blue pants", :overallprice "62.52", :id "2", :quantity "2", :price "31.26"}])
+  (doseq [keyval mapa] (prn "PRODUCT:")(prn (get keyval :name))(prn (get keyval :id))(prn (get keyval :quantity))(prn (get keyval :price)))
+  (println "-----------------------------")
+  
   )
   )
 
