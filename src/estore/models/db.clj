@@ -30,10 +30,18 @@
   (empty? score)
  )
 
+(defn get-order-id[]
+  (def query (str "SELECT MAX(`order_id`) FROM `order`"))
+  (def order-id-string (str "STRING: " (apply str (sql/query db [query]))))
+  (def order-id-int (parse-int order-id-string))
+  (def order-id (+ order-id-int 1))
+  (if (number? order-id) order-id 0)
+  )
 
+(defn save-order [idorder iduser date address city]              
+	(sql/db-do-prepared db "INSERT INTO `order`(`order_id`,`user_id`, `date`, `shipping_address`, `shipping_city`) VALUES (?,?,?,?,?)" [idorder iduser date address city])
+ )
 
-
-
-(defn save-checkout [iduser date address city]
-	(sql/db-do-prepared db "INSERT INTO `order`(`user_id`, `date`, `shipping_address`, `shipping_city`) VALUES (?,?,?,?)" [iduser date address city])
+(defn save-order-item[ordid proid quantity]
+  (sql/db-do-prepared db "INSERT INTO `orderitem`(`order_id`, `product_id`, `quantity`) VALUES (?,?,?)" [ordid proid quantity])
  )
