@@ -55,3 +55,7 @@
     (def query (str "SELECT `username` FROM `user` WHERE `username` = '" username "' AND `password` = '" password "'"))
     (sql/query db [query])
   )
+
+(defn register[username password email]
+  (sql/db-do-prepared db "INSERT INTO `user`(`username`, `password`, `email`) VALUES (?,?,?)" [username password email])
+  )

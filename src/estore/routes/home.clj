@@ -58,15 +58,30 @@
     
     ))
 
-(defn login-page [&[user pass]]
+(defn login-page [&[user pass ruser rpass reppass email]]
 (layout/common
 	(form-to [:post "/login"]
+          [:h3 "Sign in"]
           [:p "Username:"]
           (text-field "user" user)
           [:p "Password:"]
           (text-field "pass" pass)
           [:br]
-          (submit-button "Login"))))
+          (submit-button "Login"))
+  (form-to [:post "/register"]
+          [:h3 "Register"]
+          [:p "Username:"]
+          (text-field "ruser" ruser)
+          [:p "Password:"]
+          (text-field "rpass" rpass)
+          [:p "Repeat password:"]
+          (text-field "reppass" reppass)
+          [:p "Email:"]
+          (text-field "email" email)
+          [:br]
+          (submit-button "Register"))
+ 
+ ))
 
 (defn shipping-address [& [address city ]]
   (layout/common
@@ -104,13 +119,13 @@
  (GET "/login" [] (login-page))
  (POST "/login" [user pass](def user-id (get-user-id user pass))(def user-username (get-username user pass))(def uid (get (read-string (apply str user-id)) :id))(def uname (get (read-string (apply str user-username)) :username))
        (session/put! :user {:id uid :username uname})(def condition (login-user user pass))(if(true? condition)(not-found)(home)))             
- (GET "/logout" [] 
- (session/clear!)(home))
+ (POST "/register" [ruser rpass email](register ruser rpass email)(home))
+ (GET "/logout" [] (session/clear!)(home))
  (GET "/" [] (home))
  (GET "/category/:category_id" [category_id] (category-page category_id))
  (GET "/product/:product-id" [product-id] (product-page product-id))
- (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice" [productid name quantity price overallprice] (def b (if (empty? (session/get :basket))(hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice)(vector (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(home))
+ (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice" [productid name quantity price overallprice] (def b (if (empty? (session/get :basket))(vector (hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice))(conj (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(home))
  (GET "/shipping-address" [] (shipping-address))
- (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city)(def itemid 0)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(home))
+ (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(home))
  (GET "/sss" [] (sss))
  )
