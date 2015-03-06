@@ -5,7 +5,7 @@
             [noir.session :as session])
   (use estore.models.db))
 
-(defn home [& [category_id name]]
+(defn home [& [category_id name user pass]]
   (layout/common [:h1 "Hello Estore!"]
 	    [:ul  
     (for [{:keys [category_id name]}
@@ -15,12 +15,13 @@
 		  ])]
      [:a {:href "/login"} "Sign in"]
      [:a {:href "/logout"} "Sign out"]
-     [:h1 (str "User: " (session/get :user))]
      
      
      [:h1 (str "Basket Default: " (session/get :basket))]
-     [:a {:href "/shipping-address"} "Checkout"]
+     [:h1 (str "User: " (session/get :user))]
+     [:a {:href "/shipping-address"} "Checkout"]1
      [:a {:href "/sss"} "Iterates"]
+     
 	  ))
 
 (defn category-page [category_id]
@@ -101,7 +102,8 @@
 
 (defroutes home-routes
  (GET "/login" [] (login-page))
- (POST "/login" [user pass](def condition (login-user user pass))(println condition)(if(true? condition)(not-found)(home)))             
+ (POST "/login" [user pass](def user-id (get-user-id user pass))(def user-username (get-username user pass))(def uid (get (read-string (apply str user-id)) :id))(def uname (get (read-string (apply str user-username)) :username))
+       (session/put! :user {:id uid :username uname})(def condition (login-user user pass))(if(true? condition)(not-found)(home)))             
  (GET "/logout" [] 
  (session/clear!)(home))
  (GET "/" [] (home))
@@ -109,6 +111,6 @@
  (GET "/product/:product-id" [product-id] (product-page product-id))
  (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice" [productid name quantity price overallprice] (def b (if (empty? (session/get :basket))(hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice)(vector (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(home))
  (GET "/shipping-address" [] (shipping-address))
- (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid 1 "2015-08-08" address city)(def itemid 0)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(home))
+ (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city)(def itemid 0)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(home))
  (GET "/sss" [] (sss))
  )

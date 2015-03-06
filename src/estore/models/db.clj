@@ -45,3 +45,13 @@
 (defn save-order-item[ordid proid quantity]
   (sql/db-do-prepared db "INSERT INTO `orderitem`(`order_id`, `product_id`, `quantity`) VALUES (?,?,?)" [ordid proid quantity])
  )
+
+(defn get-user-id[username password]
+    (def query (str "SELECT `id` FROM `user` WHERE `username` = '" username "' AND `password` = '" password "'"))
+    (sql/query db [query])
+  )
+
+(defn get-username[username password]
+    (def query (str "SELECT `username` FROM `user` WHERE `username` = '" username "' AND `password` = '" password "'"))
+    (sql/query db [query])
+  )
