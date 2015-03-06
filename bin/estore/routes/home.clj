@@ -6,7 +6,8 @@
   (use estore.models.db))
 
 (defn home [& [category_id name user pass]]
-  (layout/common [:h1 "Hello Estore!"]
+  (layout/common
+     (layout/slider)
 	    [:ul  
     (for [{:keys [category_id name]}
        (list-categories)]

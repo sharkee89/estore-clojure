@@ -20,3 +20,7 @@ $(document).ready(function(){
 		window.location.href = url;
 	});
 });
+
+$('.carousel').carousel({
+    interval: 5000
+})
