@@ -8,14 +8,6 @@
 (defn home [& [category_id name user pass]]
   (layout/common
      (layout/slider)
-	    [:ul  
-    (for [{:keys [category_id name]}
-       (list-categories)]
-		  [:li
-		   [:a {:href (str "/category/" category_id)} name]
-		  ])]
-     [:a {:href "/login"} "Sign in"]
-     [:a {:href "/logout"} "Sign out"]
      
      
      [:h1 (str "Basket Default: " (session/get :basket))]
@@ -27,12 +19,24 @@
 
 (defn category-page [category_id]
   (layout/common
-    [:ul  
-    (for [{:keys [productid name]}
+
+    [:div.row
+    [:div.col-md-3]
+    [:div.col-md-9
+    [:div.row  
+     
+    (for [{:keys [productid name price description]}
        (list-products-for-category category_id)]
-		  [:li
-		   [:a {:href (str "/product/" productid)} name]
-		  ])]
+		  [:div {:class "col-md-4 catproduct"}
+       [:p {:class "product-id-cat" :style "display:none"} productid]
+		   [:a {:href (str "/product/" productid) :class "name-cat"} name]
+       [:div[:p "Quantity:"][:input {:type "text" :id "quantitycat"}]]
+       [:div[:p "Price:"][:p.price-cat (str price)]]
+       [:a {:href (str "/product/" productid)} [:img {:src (str "/img/" name ".png") :width "95px" :height "95px"}]]
+       [:a {:href "#" :class "add-to-cart-cat btn btn-success" :type "button"} "Add to cart"]
+		  ])]]
+    ]
+    
     [:h1 (str "User: " (session/get :user))]
     [:h1 (str "Basket Default: " (session/get :basket))]
     
@@ -40,22 +44,34 @@
 
 (defn product-page [product-id &[quantity]]
   (layout/common
+    
+    
+    
+    
+    
     [:ul  
     (for [{:keys [productid name price description]}
        (get-product product-id)]
       
-      
+      [:div.row
+       [:div.col-md-6
+        [:img {:src (str "/img/" name ".png") :width "395px" :height "395px"}]
+        ]
+       [:div.col-md-6
       [:ul
-       [:li [:a {:href "#" :class "product-id"} productid]]
-       [:li [:a {:href "#" :class "name"} name]]
-       [:li [:a {:href "#" :class "price"} price]]
+       [:li [:p {:class "product-id" :style "display:none"} productid]]
+       [:li [:h2 {:class "name"} name]]
+       [:li [:p {:class "price"} price]]
        [:input {:id "quantity" :type "text" :name quantity}]
-       [:li [:a {:href "#"} description]
-       ][:a {:class "add-to-cart" :href "#"} "Add to cart"]
+       [:li [:p description]
+       ][:a {:class "btn btn-success add-to-cart" :href "#"} "Add to cart"]
        ]
-    )]
+      ]]
+    )
+    ]
+    
     [:h1 (str "User: " (session/get :user))]
-    [:h1 (str "Basket: " (get (session/get :basket) :name))]
+    [:h1 (str "Basket Default: " (session/get :basket))]
     
     ))
 
@@ -123,9 +139,9 @@
  (POST "/register" [ruser rpass email](register ruser rpass email)(home))
  (GET "/logout" [] (session/clear!)(home))
  (GET "/" [] (home))
- (GET "/category/:category_id" [category_id] (category-page category_id))
+ (GET "/category/:category_id" [category_id] (session/put! :category category_id)(category-page category_id))
  (GET "/product/:product-id" [product-id] (product-page product-id))
- (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice" [productid name quantity price overallprice] (def b (if (empty? (session/get :basket))(vector (hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice))(conj (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(home))
+ (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice/:pagename" [productid name quantity price overallprice pagename] (def b (if (empty? (session/get :basket))(vector (hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice))(conj (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(def condition (= pagename (str "category")))(if(true? condition)(category-page (session/get :category))(product-page productid)))
  (GET "/shipping-address" [] (shipping-address))
  (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(home))
  (GET "/sss" [] (sss))

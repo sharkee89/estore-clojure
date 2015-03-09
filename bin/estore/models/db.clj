@@ -59,3 +59,10 @@
 (defn register[username password email]
   (sql/db-do-prepared db "INSERT INTO `user`(`username`, `password`, `email`) VALUES (?,?,?)" [username password email])
   )
+
+(defn get-category-from-product[product-id]
+  
+  (def query (str "SELECT `cateogoryid` FROM `product` WHERE `productid` = " product-id))
+  (println query)
+    (sql/query db [query])
+  )

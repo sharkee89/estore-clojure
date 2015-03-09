@@ -1,5 +1,6 @@
 (ns estore.views.layout
-  (:require [hiccup.page :refer [html5 include-css]])
+  (:require [hiccup.page :refer [html5 include-css]]
+            [noir.session :as session])
   (use estore.models.db))
 
 (defn common [& body]
@@ -10,6 +11,7 @@
      (include-css "/css/full-slider.css")
      (include-css "/css/screen.css")
      [:script {:src "/js/jquery.js"}]
+     [:script {:src "/js/jquery-ui.js"}]
      [:script {:src "/js/bootstrap.min.js"}]
      [:script {:src "/js/app.js"}]]
     [:body 
@@ -32,6 +34,12 @@
 				  [:li
 				   [:a {:href (str "/category/" category_id)} name]
 				  ])
+        ]
+        [:ul {:class "nav navbar-nav"}
+         (if (nil? (session/get :user))  
+          [:li[:a {:href "/login"} "Sign in"]]
+	        [:li[:a {:href "/logout"} "Sign out"]]
+           ) 
         ]
         ]
        ]
