@@ -12,8 +12,7 @@
      
      [:h1 (str "Basket Default: " (session/get :basket))]
      [:h1 (str "User: " (session/get :user))]
-     [:a {:href "/shipping-address"} "Checkout"]1
-     [:a {:href "/sss"} "Iterates"]
+     
      
 	  ))
 
@@ -49,26 +48,26 @@
     
     
     
-    [:ul  
+    
     (for [{:keys [productid name price description]}
        (get-product product-id)]
       
       [:div.row
-       [:div.col-md-6
-        [:img {:src (str "/img/" name ".png") :width "395px" :height "395px"}]
-        ]
-       [:div.col-md-6
-      [:ul
-       [:li [:p {:class "product-id" :style "display:none"} productid]]
-       [:li [:h2 {:class "name"} name]]
-       [:li [:p {:class "price"} price]]
-       [:input {:id "quantity" :type "text" :name quantity}]
-       [:li [:p description]
-       ][:a {:class "btn btn-success add-to-cart" :href "#"} "Add to cart"]
+      [:div.col-md-6
+       [:img {:src (str "/img/" name ".png") :width "395px" :height "395px"}]
        ]
-      ]]
+      [:div.col-md-6
+      [:ul
+       [:p {:class "product-id" :style "display:none"} productid]
+       [:h2 {:class "name"} name]
+       [:p {:class "price"} price]
+       [:input {:id "quantity" :type "text" :name quantity}]
+       [:p description]
+       [:a {:class "btn btn-success add-to-cart" :href "#"} "Add to cart"]
+       ]
+     ]]
     )
-    ]
+    
     
     [:h1 (str "User: " (session/get :user))]
     [:h1 (str "Basket Default: " (session/get :basket))]
@@ -100,16 +99,19 @@
  
  ))
 
-(defn shipping-address [& [address city ]]
+(defn shipping-address [& [address city]]
   (layout/common
     [:h3 "Input your shipping information"]
     (form-to [:post "/save-order"]
-          [:p "Address:"]
-          (text-field "address" address)
-          [:p "City:"]
-          (text-field "city" city)
+          [:div.form-group
+          [:label "Address:"]
+          
+          [:input {:type "text" :id "address" :name "address" :class "form-control"}]]
+          [:div.form-group
+          [:label "City:"]
+          [:input {:type "text" :id "city" :name "city" :class "form-control"}]]
           [:br]
-          (submit-button "Make an order"))
+          [:input {:type "submit" :value "Make an order" :class "btn btn-success"}])
     
     [:h1 (str "User: " (session/get :user))]
     [:h1 (str "Basket Default: " (session/get :basket))]
@@ -123,12 +125,34 @@
   )
   )
 
-(defn sss []
+(defn cart-page[]
   (layout/common
-  (def mapa [{:name "Stefanija"}])
-  (doseq [keyval mapa] (prn "PRODUCT:")(prn (get keyval :name)))
-  (println "-----------------------------")
-  )
+    [:h1 "Your cart"]
+    (if (nil? (session/get :basket)) 
+      
+      [:h4 "Your cart is empty"]
+      
+      [:div.row
+                       [:div.col-md-9
+                        (for [{:keys [id name price quantity overallprice]}
+       (session/get :basket)]                          
+                          [:div
+                          [:h3 "Product"] 
+                          [:div.col-md-2
+                           [:a {:href (str "/product/" id)} [:img {:src (str "/img/" name ".png") :width "95px" :height "95px"}]]
+                           ]
+        [:div.col-md-10 [:p (str "Name: " name)]
+                          [:p (str "Price: " price)]
+                          [:p (str "Quantity: "quantity)]
+                          [:p (str "Total: "overallprice)]]
+                          ]
+		 )
+                        ]
+                       [:div.col-md-3]
+                        [:a {:href "/shipping-address" :class "btn btn-success"} "Checkout"]
+                       ]
+      )
+    )
   )
 
 
@@ -144,5 +168,5 @@
  (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice/:pagename" [productid name quantity price overallprice pagename] (def b (if (empty? (session/get :basket))(vector (hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice))(conj (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(def condition (= pagename (str "category")))(if(true? condition)(category-page (session/get :category))(product-page productid)))
  (GET "/shipping-address" [] (shipping-address))
  (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(home))
- (GET "/sss" [] (sss))
+ (GET "/cart" [] (cart-page))
  )

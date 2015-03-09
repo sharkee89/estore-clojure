@@ -39,7 +39,8 @@
          (if (nil? (session/get :user))  
           [:li[:a {:href "/login"} "Sign in"]]
 	        [:li[:a {:href "/logout"} "Sign out"]]
-           ) 
+           )
+         [:li[:a {:href "/cart"} "View cart"]]
         ]
         ]
        ]
