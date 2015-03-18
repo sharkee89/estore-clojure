@@ -63,6 +63,31 @@
 (defn get-category-from-product[product-id]
   
   (def query (str "SELECT `cateogoryid` FROM `product` WHERE `productid` = " product-id))
-  (println query)
     (sql/query db [query])
   )
+
+(defn get-orders [userid]
+  (def query (str "SELECT * FROM `order` WHERE user_id = " userid))
+  (sql/query db [query])
+  )
+
+(defn get-order-items[orderid]
+  (def query (str "SELECT * FROM `orderitem` WHERE `order_id` = " orderid))
+  (sql/query db [query])
+  )
+
+(defn get-product-name[productid]
+  
+  (def query (str "SELECT `name` FROM `product` WHERE `productid` = " productid))
+  (sql/query db [query])
+  )
+
+(defn get-product-price[productid]
+  
+  (def query (str "SELECT `price` FROM `product` WHERE `productid` = " productid))
+  (sql/query db [query])
+  )
+
+
+
+

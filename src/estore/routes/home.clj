@@ -11,7 +11,6 @@
      
      
      [:h1 (str "Basket Default: " (session/get :basket))]
-     [:h1 (str "User: " (session/get :user))]
      
      
 	  ))
@@ -155,6 +154,68 @@
     )
   )
 
+(defn profile-page[id]
+  (layout/common
+    (if(nil? (session/get :user))
+      [:div[:p "You have to login first to see your orders"]
+      [:a {:href "/login" class "btn btn-success"} "Sign in"]]
+      [:ul
+     [:li [:a {:href (str "/orders/" id)} "Orders"]]
+     ]
+      )
+    
+    )
+  )
+
+(defn orders-page[id]
+  (layout/common
+    (if(nil? (session/get :user))
+      [:div[:p "You have to login first to see your orders"]
+      [:a {:href "/login" class "btn btn-success"} "Sign in"]]
+    (for [{:keys [order_id shipping_address shipping_city]}
+       (get-orders id)]
+		  
+       [:div
+        [:table
+         [:tr {:class "row-1-orders"}
+          [:td "Order"]
+          ]
+         [:tr {:class "row-2-orders"}
+          [:td (str "Address: " shipping_address)]
+          ]
+         [:tr {:class "row-3-orders"}
+          [:td (str "City: "shipping_city)]
+          ]
+         [:tr {:class "row-4-orders"}
+          [:td "Items"]
+          ]
+         [:tr {:class "row-5-orders"}
+          [:td]
+          [:td "Name"]
+          [:td "Quantity"]
+          [:td "Price"]
+          ]
+         
+          (for [{:keys [product_id quantity]}
+                (get-order-items order_id)]
+            [:tr {:class "row-6-orders"}
+             
+             [:td [:a {:href (str "/product/" product_id)} [:img {:src (str "/img/" (apply str (for [{:keys [name]}(get-product-name product_id)] name)) ".png") :width "95px" :height "95px"}]]]
+             [:td (for [{:keys [name]}
+                (get-product-name product_id)] name)]
+             [:td quantity]
+             [:td (for [{:keys [price]}
+                (get-product-price product_id)] price)]
+             ]
+            )
+          
+         [:hr]
+         ]
+        ]
+		  ))
+    )
+  )
+
 
 (defroutes home-routes
  (GET "/login" [] (login-page))
@@ -169,4 +230,6 @@
  (GET "/shipping-address" [] (shipping-address))
  (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(home))
  (GET "/cart" [] (cart-page))
+ (GET "/profile/:id" [id] (profile-page id))
+ (GET "/orders/:id" [id] (orders-page id))
  )

@@ -11,9 +11,9 @@
      (include-css "/css/full-slider.css")
      (include-css "/css/screen.css")
      [:script {:src "/js/jquery.js"}]
-     [:script {:src "/js/jquery-ui.js"}]
      [:script {:src "/js/bootstrap.min.js"}]
-     [:script {:src "/js/app.js"}]]
+     [:script {:src "/js/app.js"}]
+     ]
     [:body 
      [:nav {:class "navbar navbar-inverse navbar-static-top" :role "navigation"}
       [:div.container
@@ -41,6 +41,7 @@
 	        [:li[:a {:href "/logout"} "Sign out"]]
            )
          [:li[:a {:href "/cart"} "View cart"]]
+         [:li [:a {:href (str "/profile/" (get (session/get :user) :id))}(get (session/get :user) :username)]]
         ]
         ]
        ]

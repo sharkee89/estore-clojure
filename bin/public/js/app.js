@@ -26,24 +26,20 @@ $(document).ready(function(){
 		$(this).find('.add-to-cart-cat').click(function(e){
 			e.preventDefault();
 			var t = $(this);
-			console.log(t)
 			var id = th.find('.product-id-cat').html();
-			console.log("ID: " + id);
 			var quantity = th.find('#quantitycat').val();
-			console.log("Q: " + quantity);
 			var name = th.find('.name-cat').text();
-			console.log("N: " + name);
 			var price = th.find('.price-cat').text();
-			console.log("P: " + price);
 			var overallprice = price * quantity;
 			var url = "/addToCart/" + id + "/" + name + "/" + quantity + "/" + price + "/" + overallprice + "/category";
 			
 			window.location.href = url;
 		});
 	});
+	
+	
 });
 
 $('.carousel').carousel({
     interval: 5000
-})
-
+});

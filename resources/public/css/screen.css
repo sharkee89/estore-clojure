@@ -8,3 +8,11 @@ h1 {
     text-align: center;
 }
 
+.row-1-orders, .row-2-orders, .row-3-orders{
+	background-color: rgba(224, 224, 224, 1);
+}
+
+.row-4-orders, .row-5-orders{
+	background-color: rgba(204, 255, 204, 1);
+}
+

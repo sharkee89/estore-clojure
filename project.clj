@@ -7,7 +7,9 @@
                  [ring-server "0.3.1"]
                  [org.clojure/java.jdbc "0.3.6"]
                  [mysql/mysql-connector-java "5.1.25"]
-                 [lib-noir "0.2.0"]]
+                 [lib-noir "0.2.0"]
+                 [javax.mail/mail "1.4.3"]
+                 ]
   :plugins [[lein-ring "0.8.12"]
 		[lein2-eclipse "2.0.0"]]
   :ring {:handler estore.handler/app
