@@ -40,7 +40,8 @@
           [:li[:a {:href "/login"} "Sign in"]]
 	        [:li[:a {:href "/logout"} "Sign out"]]
            )
-         [:li[:a {:href "/cart"} "View cart"]]
+         
+          [:li [:a {:href "/cart" :class "view-cart"} "View cart"]]
          [:li [:a {:href (str "/profile/" (get (session/get :user) :id))}(get (session/get :user) :username)]]
         ]
         ]

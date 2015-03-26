@@ -101,8 +101,41 @@
 (defn shipping-address [& [address city]]
   (layout/common
     [:h3 "Input your shipping information"]
+    [:script " $(document).ready(function(){
+                $( '.select-address' ).on( 'change', function() {
+                var adrID = $('select[name=address-selector]').val();
+                $.ajax({
+								 url: '/get-address-ajax',
+								 type: 'POST',
+								 dataType: 'html',
+								 data: {adrId: adrID}
+								})
+								.done(function() {
+								 console.log('success');
+								})
+								.fail(function() {
+								 console.log('error');
+								})
+								.always(function() {
+								 console.log('complete');
+								});
+                });
+          })"
+     ]
     (form-to [:post "/save-order"]
           [:div.form-group
+          [:label "Select an address:"]
+          
+          [:select {:id "s" :name "address-selector" :class "form-control select-address"}
+           [:option "Select an address"]
+           (for [{:keys [address_id street name city state zipcode phone]}
+			       (get-addresses (get (session/get :user) :id))]
+			      [:option {:value address_id} name]
+					  )
+         ]
+            
+        ]
+        [:div.form-group
           [:label "Address:"]
           
           [:input {:type "text" :id "address" :name "address" :class "form-control"}]]
@@ -148,7 +181,11 @@
 		 )
                         ]
                        [:div.col-md-3]
-                        [:a {:href "/shipping-address" :class "btn btn-success"} "Checkout"]
+                       (if (nil? (session/get :user))
+                        [:a {:href "/login" :class "btn btn-success"} "Sign in"]
+                        [:a {:href "/shipping-address" :class "btn btn-success"} "Checkout"] 
+                         )
+                        
                        ]
       )
     )
@@ -161,6 +198,7 @@
       [:a {:href "/login" class "btn btn-success"} "Sign in"]]
       [:ul
      [:li [:a {:href (str "/orders/" id)} "Orders"]]
+     [:li [:a {:href (str "/adresses/" id)} "Addresses"]]
      ]
       )
     
@@ -216,13 +254,48 @@
     )
   )
 
+(defn address-page[id]
+  (layout/common
+    (if(nil? (session/get :user))
+      [:div[:p "You have to login first to see your addresses"]
+      [:a {:href "/login" class "btn btn-success"} "Sign in"]]
+    (for [{:keys [street name city state zipcode phone]}
+       (get-addresses id)]
+      [:ul "Address"
+       [:li (str "Street: " street)]
+       [:li (str "Name of address: " name)]
+       [:li (str "City: " city)]
+       [:li (str "State: " state)]
+       [:li (str "Zipcode: " zipcode)]
+       [:li (str "Phone: " phone)]
+       ]
+		  ))
+    )
+  )
+
+(defn get-address-ajax[adrId]
+  (layout/common  
+  (for [{:keys [street name city state zipcode phone]}
+       (get-addresses adrId)]
+      [:ul "Address"
+       [:li.adr_street (str street)]
+       [:li.adr_name (str name)]
+       [:li.adr_city (str city)]
+       [:li.adr_state (str state)]
+       [:li.adr_zipcode (str zipcode)]
+       [:li.adr_phone (str phone)]
+       ]
+		  )
+  )
+  )
+
 
 (defroutes home-routes
  (GET "/login" [] (login-page))
  (POST "/login" [user pass](def user-id (get-user-id user pass))(def user-username (get-username user pass))(def uid (get (read-string (apply str user-id)) :id))(def uname (get (read-string (apply str user-username)) :username))
        (session/put! :user {:id uid :username uname})(def condition (login-user user pass))(if(true? condition)(not-found)(home)))             
  (POST "/register" [ruser rpass email](register ruser rpass email)(home))
- (GET "/logout" [] (session/clear!)(home))
+ (GET "/logout" [] (session/remove! :user)(home))
  (GET "/" [] (home))
  (GET "/category/:category_id" [category_id] (session/put! :category category_id)(category-page category_id))
  (GET "/product/:product-id" [product-id] (product-page product-id))
@@ -232,4 +305,6 @@
  (GET "/cart" [] (cart-page))
  (GET "/profile/:id" [id] (profile-page id))
  (GET "/orders/:id" [id] (orders-page id))
+ (GET "/adresses/:id" [id] (address-page id))
+ (POST "/get-address-ajax" [adrId] (get-address-ajax adrId))
  )

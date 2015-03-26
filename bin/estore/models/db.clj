@@ -89,5 +89,8 @@
   )
 
 
-
+(defn get-addresses [userid]
+  (def query (str "SELECT * FROM `address` WHERE user_id = " userid))
+  (sql/query db [query])
+  )
 
