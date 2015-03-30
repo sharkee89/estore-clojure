@@ -104,13 +104,19 @@
     [:script " $(document).ready(function(){
                 $( '.select-address' ).on( 'change', function() {
                 var adrID = $('select[name=address-selector]').val();
-                $.ajax({
+                if(adrID > 0){
+                 $.ajax({
 								 url: '/get-address-ajax',
 								 type: 'POST',
 								 dataType: 'html',
 								 data: {adrId: adrID}
 								})
-								.done(function() {
+								.done(function(data) {
+                 $('#address').val($(data).find('.adr_street').text());
+                 $('#city').val($(data).find('.adr_city').text());
+                 $('#state').val($(data).find('.adr_state').text());
+                 $('#zipcode').val($(data).find('.adr_zipcode').text());
+                 $('#phone').val($(data).find('.adr_phone').text());
 								 console.log('success');
 								})
 								.fail(function() {
@@ -119,6 +125,13 @@
 								.always(function() {
 								 console.log('complete');
 								});
+                }else{
+                $('#address').val('');
+                 $('#city').val('');
+                 $('#state').val('');
+                 $('#zipcode').val('');
+                 $('#phone').val('');
+                }
                 });
           })"
      ]
@@ -127,7 +140,7 @@
           [:label "Select an address:"]
           
           [:select {:id "s" :name "address-selector" :class "form-control select-address"}
-           [:option "Select an address"]
+           [:option {:value 0} "Select an address"]
            (for [{:keys [address_id street name city state zipcode phone]}
 			       (get-addresses (get (session/get :user) :id))]
 			      [:option {:value address_id} name]
@@ -142,6 +155,15 @@
           [:div.form-group
           [:label "City:"]
           [:input {:type "text" :id "city" :name "city" :class "form-control"}]]
+          [:div.form-group
+          [:label "State:"]
+          [:input {:type "text" :id "state" :name "state" :class "form-control"}]]
+          [:div.form-group
+          [:label "Zipcode:"]
+          [:input {:type "text" :id "zipcode" :name "zipcode" :class "form-control"}]]
+          [:div.form-group
+          [:label "Phone:"]
+          [:input {:type "text" :id "phone" :name "phone" :class "form-control"}]]
           [:br]
           [:input {:type "submit" :value "Make an order" :class "btn btn-success"}])
     
@@ -261,13 +283,15 @@
       [:a {:href "/login" class "btn btn-success"} "Sign in"]]
     (for [{:keys [street name city state zipcode phone]}
        (get-addresses id)]
-      [:ul "Address"
-       [:li (str "Street: " street)]
-       [:li (str "Name of address: " name)]
-       [:li (str "City: " city)]
-       [:li (str "State: " state)]
-       [:li (str "Zipcode: " zipcode)]
-       [:li (str "Phone: " phone)]
+      [:div[:ul "Address"
+            [:li (str "Street: " street)]
+            [:li (str "Name of address: " name)]
+            [:li (str "City: " city)]
+            [:li (str "State: " state)]
+            [:li (str "Zipcode: " zipcode)]
+            [:li (str "Phone: " phone)]
+            ]
+       [:a {:href (str "/newaddress/" id) :class "btn btn-success"} "Create new address"]
        ]
 		  ))
     )
@@ -276,17 +300,44 @@
 (defn get-address-ajax[adrId]
   (layout/common  
   (for [{:keys [street name city state zipcode phone]}
-       (get-addresses adrId)]
-      [:ul "Address"
-       [:li.adr_street (str street)]
-       [:li.adr_name (str name)]
-       [:li.adr_city (str city)]
-       [:li.adr_state (str state)]
-       [:li.adr_zipcode (str zipcode)]
-       [:li.adr_phone (str phone)]
+       (get-address-ajax-query adrId)]
+      [:div
+       [:p.adr_street (str street)]
+       [:p.adr_name (str name)]
+       [:p.adr_city (str city)]
+       [:p.adr_state (str state)]
+       [:p.adr_zipcode (str zipcode)]
+       [:p.adr_phone (str phone)]
        ]
 		  )
   )
+  )
+(defn new-address [id]
+  (layout/common
+    (form-to [:post "/save-address"]
+         
+          [:div.form-group
+          [:label "Name:"]
+          [:input {:type "text" :id "name" :name "name" :class "form-control"}]]
+        [:div.form-group
+          [:label "Address:"]
+          
+          [:input {:type "text" :id "address" :name "address" :class "form-control"}]]
+          [:div.form-group
+          [:label "City:"]
+          [:input {:type "text" :id "city" :name "city" :class "form-control"}]]
+          [:div.form-group
+          [:label "State:"]
+          [:input {:type "text" :id "state" :name "state" :class "form-control"}]]
+          [:div.form-group
+          [:label "Zipcode:"]
+          [:input {:type "text" :id "zipcode" :name "zipcode" :class "form-control"}]]
+          [:div.form-group
+          [:label "Phone:"]
+          [:input {:type "text" :id "phone" :name "phone" :class "form-control"}]]
+          [:br]
+          [:input {:type "submit" :value "Make an order" :class "btn btn-success"}])
+    )
   )
 
 
@@ -301,10 +352,12 @@
  (GET "/product/:product-id" [product-id] (product-page product-id))
  (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice/:pagename" [productid name quantity price overallprice pagename] (def b (if (empty? (session/get :basket))(vector (hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice))(conj (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(def condition (= pagename (str "category")))(if(true? condition)(category-page (session/get :category))(product-page productid)))
  (GET "/shipping-address" [] (shipping-address))
- (POST "/save-order" [address city](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(home))
+ (POST "/save-order" [address city state zipcode phone](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city state zipcode phone)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(home))
  (GET "/cart" [] (cart-page))
- (GET "/profile/:id" [id] (profile-page id))
- (GET "/orders/:id" [id] (orders-page id))
- (GET "/adresses/:id" [id] (address-page id))
- (POST "/get-address-ajax" [adrId] (get-address-ajax adrId))
+(GET "/profile/:id" [id] (profile-page id))
+(GET "/orders/:id" [id] (orders-page id))
+(GET "/adresses/:id" [id] (address-page id))
+(POST "/get-address-ajax" [adrId] (get-address-ajax adrId))
+(GET "/newaddress/:id" [id] (new-address[id]))
+(POST "/save-address" [id name address city state zipcode phone] (save-address-query id name address city state zipcode phone) (address-page id))
  )

@@ -38,8 +38,8 @@
   (if (number? order-id) order-id 0)
   )
 
-(defn save-order [idorder iduser date address city]              
-	(sql/db-do-prepared db "INSERT INTO `order`(`order_id`,`user_id`, `date`, `shipping_address`, `shipping_city`) VALUES (?,?,?,?,?)" [idorder iduser date address city])
+(defn save-order [idorder iduser date address city state zipcode phone]              
+	(sql/db-do-prepared db "INSERT INTO `order`(`order_id`,`user_id`, `date`, `shipping_address`, `shipping_city`, `shipping_state`, `shipping_zipcode`, `shipping_phone`) VALUES (?,?,?,?,?,?,?,?)" [idorder iduser date address city state zipcode phone])
  )
 
 (defn save-order-item[ordid proid quantity]
@@ -93,4 +93,14 @@
   (def query (str "SELECT * FROM `address` WHERE user_id = " userid))
   (sql/query db [query])
   )
+
+(defn get-address-ajax-query [adrid]
+  (def query (str "SELECT * FROM `address` WHERE `address_id` = " adrid))
+  (println (sql/query db [query]))
+  (sql/query db [query])
+  )
+
+(defn save-address-query [id name address city state zipcode phone]              
+	(sql/db-do-prepared db "INSERT INTO `address`(`user_id`, `name`, `street`, `city`, `state`, `zipcode`, `phone`) VALUES (?,?,?,?,?,?,?)" [id name address city state zipcode phone])
+ )
 
