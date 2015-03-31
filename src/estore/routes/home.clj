@@ -340,7 +340,7 @@
           [:label "Phone:"]
           [:input {:type "text" :id "phone" :name "phone" :class "form-control"}]]
           [:br]
-          [:input {:type "submit" :value "Make an order" :class "btn btn-success"}])
+          [:input {:type "submit" :value "Create an address" :class "btn btn-success"}])
     )
   )
 
@@ -350,7 +350,7 @@
  (POST "/login" [user pass](def user-id (get-user-id user pass))(def user-username (get-username user pass))(def uid (get (read-string (apply str user-id)) :id))(def uname (get (read-string (apply str user-username)) :username))
        (session/put! :user {:id uid :username uname})(def condition (login-user user pass))(if(true? condition)(not-found)(home)))             
  (POST "/register" [ruser rpass email](register ruser rpass email)(home))
- (GET "/logout" [] (session/remove! :user)(home))
+ (GET "/logout" [] (session/remove! :user)(login-page))
  (GET "/" [] (home))
  (GET "/category/:category_id" [category_id] (session/put! :category category_id)(category-page category_id))
  (GET "/product/:product-id" [product-id] (product-page product-id))
