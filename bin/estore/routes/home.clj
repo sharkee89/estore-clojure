@@ -291,9 +291,13 @@
             [:li (str "Zipcode: " zipcode)]
             [:li (str "Phone: " phone)]
             ]
-       [:a {:href (str "/newaddress/" id) :class "btn btn-success"} "Create new address"]
+       
        ]
 		  ))
+    (if(nil? (session/get :user))
+      [:div]
+    [:a {:href (str "/newaddress/" id) :class "btn btn-success"} "Create new address"]
+    )
     )
   )
 
@@ -315,14 +319,14 @@
 (defn new-address [id]
   (layout/common
     (form-to [:post "/save-address"]
-         
+          [:input {:type "hidden" :id "id" :name "id" :value id}]
           [:div.form-group
           [:label "Name:"]
           [:input {:type "text" :id "name" :name "name" :class "form-control"}]]
         [:div.form-group
-          [:label "Address:"]
+          [:label "Street:"]
           
-          [:input {:type "text" :id "address" :name "address" :class "form-control"}]]
+          [:input {:type "text" :id "street" :name "street" :class "form-control"}]]
           [:div.form-group
           [:label "City:"]
           [:input {:type "text" :id "city" :name "city" :class "form-control"}]]
@@ -359,5 +363,5 @@
 (GET "/adresses/:id" [id] (address-page id))
 (POST "/get-address-ajax" [adrId] (get-address-ajax adrId))
 (GET "/newaddress/:id" [id] (new-address[id]))
-(POST "/save-address" [id name address city state zipcode phone] (save-address-query id name address city state zipcode phone) (address-page id))
+(POST "/save-address" [id name street city state zipcode phone](def id1 (read-string id))(def idForMethod (get id1 0))(println (str "KOJI JE BRE " idForMethod))(save-address-query idForMethod name street city state zipcode phone) (address-page idForMethod))
  )

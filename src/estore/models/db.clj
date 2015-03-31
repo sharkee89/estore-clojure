@@ -100,7 +100,14 @@
   (sql/query db [query])
   )
 
-(defn save-address-query [id name address city state zipcode phone]              
-	(sql/db-do-prepared db "INSERT INTO `address`(`user_id`, `name`, `street`, `city`, `state`, `zipcode`, `phone`) VALUES (?,?,?,?,?,?,?)" [id name address city state zipcode phone])
- )
-
+(defn save-address-query [id-for-user name street city state zipcode phone]
+	(sql/insert! db :address
+                    {
+                    :user_id id-for-user
+                    :name name
+                    :street street
+                    :city city
+                    :state state
+                    :zipcode zipcode
+                    :phone phone
+                    }))
