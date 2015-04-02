@@ -111,3 +111,9 @@
                     :zipcode zipcode
                     :phone phone
                     }))
+
+(defn get-email[user-id]
+  (def query (str "SELECT `email` FROM `user` WHERE `id` = " user-id))
+  (println (str "EMAILLLLL " (apply str (sql/query db [query]))))
+  (sql/query db [query])
+  )

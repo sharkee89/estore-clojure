@@ -2,8 +2,18 @@
   (:require [compojure.core :refer :all]
             [estore.views.layout :as layout]
             [hiccup.form :refer :all]
-            [noir.session :as session])
+            [noir.session :as session]
+            [postal.core :refer [send-message]])
   (use estore.models.db))
+
+(def email "stefannikolic989@gmail.com")
+(def pass "lespaul1989")
+
+(def conn {:host "smtp.gmail.com"
+           :ssl true
+           :user email
+           :pass pass})
+
 
 (defn home [& [category_id name user pass]]
   (layout/common
@@ -11,7 +21,7 @@
      
      
      [:h1 (str "Basket Default: " (session/get :basket))]
-     
+     [:a {:href "/sendemail"} "Send Email"]
      
 	  ))
 
@@ -356,7 +366,21 @@
  (GET "/product/:product-id" [product-id] (product-page product-id))
  (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice/:pagename" [productid name quantity price overallprice pagename] (def b (if (empty? (session/get :basket))(vector (hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice))(conj (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(def condition (= pagename (str "category")))(if(true? condition)(category-page (session/get :category))(product-page productid)))
  (GET "/shipping-address" [] (shipping-address))
- (POST "/save-order" [address city state zipcode phone](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city state zipcode phone)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(home))
+ (POST "/save-order" [address city state zipcode phone](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city state zipcode phone)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(send-message conn {:from email
+                    :to (get (read-string (apply str (get-email (get (session/get :user) :id)))) :email)
+                    :subject (str "Order " orderid " complete")
+                    :body (str "Hi " (get (session/get :user) :username) "\n"
+                               "\n"
+                               "Your order has been successfully completed"
+                               "\n"
+                               "Order details:"
+                               "\n"
+                               "Order number: " orderid
+                               "\n"
+                               "The products you ordered will be shipped to your address very soon"
+                               "\n"
+                               "Thank you for your loyalty"
+                               )})(home))
  (GET "/cart" [] (cart-page))
 (GET "/profile/:id" [id] (profile-page id))
 (GET "/orders/:id" [id] (orders-page id))
