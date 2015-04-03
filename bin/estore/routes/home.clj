@@ -366,16 +366,52 @@
  (GET "/product/:product-id" [product-id] (product-page product-id))
  (GET "/addToCart/:productid/:name/:quantity/:price/:overallprice/:pagename" [productid name quantity price overallprice pagename] (def b (if (empty? (session/get :basket))(vector (hash-map :id productid, :name name, :quantity quantity, :price price, :overallprice overallprice))(conj (session/get :basket) (hash-map :id productid :name name :quantity quantity :price price :overallprice overallprice))))(session/put! :basket b)(def condition (= pagename (str "category")))(if(true? condition)(category-page (session/get :category))(product-page productid)))
  (GET "/shipping-address" [] (shipping-address))
- (POST "/save-order" [address city state zipcode phone](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city state zipcode phone)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(session/remove! :basket)(send-message conn {:from email
+ (POST "/save-order" [address city state zipcode phone](def orderid (get-order-id))(save-order orderid (get (session/get :user) :id) "2015-08-08" address city state zipcode phone)(doseq [keyval (session/get :basket)](save-order-item orderid (get keyval :id)(get keyval :quantity)))(send-message conn {:from email
                     :to (get (read-string (apply str (get-email (get (session/get :user) :id)))) :email)
                     :subject (str "Order " orderid " complete")
-                    :body (str "Hi " (get (session/get :user) :username) "\n"
-                               "\n"
+                    :body (str "Hi " (get (session/get :user) :username) 
+                               "\n" "\n"
                                "Your order has been successfully completed"
-                               "\n"
-                               "Order details:"
-                               "\n"
+                               "\n" "\n"                                                             
                                "Order number: " orderid
+                               "\n" "\n"                               
+                               (apply str (for [{:keys [order_id shipping_address shipping_city]}
+													       (get-order orderid)]
+															  
+													       (str 
+													         "Shipping address: "shipping_address
+                                   "\n" "\n"  
+													         "Shipping city: "shipping_city
+                                   "\n""\n"
+                                   "--------------------------------------------------------------------------------------"
+                                   "\n""\n"
+                                   
+													          (apply str(for [{:keys [product_id quantity]}
+													                (get-order-items orderid)]
+													            (str                                        
+													             "Product:"
+													             (apply str(for [{:keys [name]}
+													                (get-product-name product_id)] name))
+                                       "\n""\n"
+													             (str "Quantity: " quantity)
+                                       "\n""\n"
+                                       "Price: "
+													             (apply str (for [{:keys [price]}
+													                (get-product-price product_id)] price))
+                                       "$"
+                                       "\n""\n"
+                                       "--------------------------------------------------------------------------------------"
+                                       "\n""\n"
+                                       
+													             )
+													            )
+                              )
+													          
+													        "Total price: " (get (read-string (apply str (session/get :basket))) :overallprice) 
+													         
+													        )
+															  ))
+                               "\n"
                                "\n"
                                "The products you ordered will be shipped to your address very soon"
                                "\n"

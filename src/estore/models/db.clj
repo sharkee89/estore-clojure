@@ -117,3 +117,8 @@
   (println (str "EMAILLLLL " (apply str (sql/query db [query]))))
   (sql/query db [query])
   )
+
+(defn get-order [id]
+  (def query (str "SELECT * FROM `order` WHERE order_id = " id))
+  (sql/query db [query])
+  )
