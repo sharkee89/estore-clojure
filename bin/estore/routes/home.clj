@@ -20,9 +20,6 @@
      (layout/slider)
      
      
-     [:h1 (str "Basket Default: " (session/get :basket))]
-     [:a {:href "/sendemail"} "Send Email"]
-     
 	  ))
 
 (defn category-page [category_id]
@@ -38,15 +35,12 @@
 		  [:div {:class "col-md-4 catproduct"}
        [:p {:class "product-id-cat" :style "display:none"} productid]
 		   [:a {:href (str "/product/" productid) :class "name-cat"} name]
-       [:div[:p "Quantity:"][:input {:type "text" :id "quantitycat"}]]
+       [:div[:p "Quantity:"][:input {:type "text" :id "quantitycat" :class "form-control"}]]
        [:div[:p "Price:"][:p.price-cat (str price)]]
-       [:a {:href (str "/product/" productid)} [:img {:src (str "/img/" name ".png") :width "95px" :height "95px"}]]
-       [:a {:href "#" :class "add-to-cart-cat btn btn-success" :type "button"} "Add to cart"]
+       [:div.cat-picture[:a {:href (str "/product/" productid)} [:img {:src (str "/img/" name ".png") :width "95px" :height "95px"}]]
+       [:a {:href "#" :class "add-to-cart-cat btn btn-success" :type "button"} "Add to cart"]]
 		  ])]]
     ]
-    
-    [:h1 (str "User: " (session/get :user))]
-    [:h1 (str "Basket Default: " (session/get :basket))]
     
     ))
 
@@ -85,26 +79,26 @@
 
 (defn login-page [&[user pass ruser rpass reppass email]]
 (layout/common
-	(form-to [:post "/login"]
+	[:div.form-login(form-to [:post "/login"]
           [:h3 "Sign in"]
           [:p "Username:"]
-          (text-field "user" user)
+                          [:input {:type "text" :id "user" :name "user" :required "required" :class "form-control" :placeholder "Enter your username"}]
           [:p "Password:"]
-          (text-field "pass" pass)
+                          [:input {:type "password" :id "pass" :name "pass" :required "required" :class "form-control" :placeholder "Enter your password"}]
           [:br]
-          (submit-button "Login"))
-  (form-to [:post "/register"]
+          [:input {:type "submit" :value "Login" :class "btn btn-success"}])]
+  [:div.form-register(form-to [:post "/register"]
           [:h3 "Register"]
           [:p "Username:"]
-          (text-field "ruser" ruser)
+          [:input {:type "text" :id "ruser" :name "ruser" :required "required" :class "form-control" :placeholder "Enter username you want to use"}]
           [:p "Password:"]
-          (text-field "rpass" rpass)
+          [:input {:type "password" :id "rpass" :name "rpass" :required "required" :class "form-control" :placeholder "Enter password you want to use"}]
           [:p "Repeat password:"]
-          (text-field "reppass" reppass)
+          [:input {:type "password" :id "reppass" :name "reppass" :required "required" :class "form-control" :placeholder "Repeat your password"}]
           [:p "Email:"]
-          (text-field "email" email)
+           [:input {:type "text" :id "email" :name "email" :required "required" :class "form-control" :placeholder "Enter email you want to use"}]
           [:br]
-          (submit-button "Register"))
+          [:input {:type "submit" :value "Register" :class "btn btn-success"}])]
  
  ))
 
@@ -241,7 +235,7 @@
   (layout/common
     (if(nil? (session/get :user))
       [:div[:p "You have to login first to see your orders"]
-      [:a {:href "/login" class "btn btn-success"} "Sign in"]]
+      [:a {:href "/login" :class "btn btn-success"} "Sign in"]]
     (for [{:keys [order_id shipping_address shipping_city]}
        (get-orders id)]
 		  
@@ -328,29 +322,33 @@
   )
 (defn new-address [id]
   (layout/common
-    (form-to [:post "/save-address"]
+    (if(nil? (session/get :user))
+      [:div[:p "You have to login first to see your orders"]
+      [:a {:href "/login" :class "btn btn-success"} "Sign in"]]
+    [:div.create-address-form(form-to [:post "/save-address"]
+          [:h1 "Create address"]
           [:input {:type "hidden" :id "id" :name "id" :value id}]
-          [:div.form-group
+                                   [:div.form-group
           [:label "Name:"]
-          [:input {:type "text" :id "name" :name "name" :class "form-control"}]]
-        [:div.form-group
+          [:input {:type "text" :id "name" :name "name" :class "form-control" :required "required"}]]
+          [:div.form-group
           [:label "Street:"]
           
-          [:input {:type "text" :id "street" :name "street" :class "form-control"}]]
+          [:input {:type "text" :id "street" :name "street" :class "form-control" :required "required"}]]
           [:div.form-group
           [:label "City:"]
-          [:input {:type "text" :id "city" :name "city" :class "form-control"}]]
+          [:input {:type "text" :id "city" :name "city" :class "form-control" :required "required"}]]
           [:div.form-group
           [:label "State:"]
-          [:input {:type "text" :id "state" :name "state" :class "form-control"}]]
+          [:input {:type "text" :id "state" :name "state" :class "form-control" :required "required"}]]
           [:div.form-group
           [:label "Zipcode:"]
-          [:input {:type "text" :id "zipcode" :name "zipcode" :class "form-control"}]]
+          [:input {:type "text" :id "zipcode" :name "zipcode" :class "form-control" :required "required"}]]
           [:div.form-group
           [:label "Phone:"]
-          [:input {:type "text" :id "phone" :name "phone" :class "form-control"}]]
+          [:input {:type "text" :id "phone" :name "phone" :class "form-control" :required "required"}]]
           [:br]
-          [:input {:type "submit" :value "Create an address" :class "btn btn-success"}])
+          [:input {:type "submit" :value "Create an address" :class "btn btn-success"}])])
     )
   )
 
