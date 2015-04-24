@@ -207,13 +207,14 @@
 		 )
                         ]
                        [:div.col-md-3]
-                       (if (nil? (session/get :user))
-                        [:a {:href "/login" :class "btn btn-success"} "Sign in"]
-                        [:a {:href "/shipping-address" :class "btn btn-success"} "Checkout"] 
-                         )
+      (if (nil? (session/get :user))
+       [:a {:href "/login" :class "btn btn-success"} "Sign in"]
+       [:a {:href "/shipping-address" :class "btn btn-success"} "Checkout"] 
+        )
                         
                        ]
       )
+    
     )
   )
 
@@ -421,5 +422,5 @@
 (GET "/adresses/:id" [id] (address-page id))
 (POST "/get-address-ajax" [adrId] (get-address-ajax adrId))
 (GET "/newaddress/:id" [id] (new-address[id]))
-(POST "/save-address" [id name street city state zipcode phone](def id1 (read-string id))(def idForMethod (get id1 0))(println (str "KOJI JE BRE " idForMethod))(save-address-query idForMethod name street city state zipcode phone) (address-page idForMethod))
+(POST "/save-address" [id name street city state zipcode phone](def id1 (read-string id))(def idForMethod (get id1 0))(save-address-query idForMethod name street city state zipcode phone) (address-page idForMethod))
  )
