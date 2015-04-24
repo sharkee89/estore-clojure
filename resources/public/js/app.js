@@ -22,7 +22,6 @@ $(document).ready(
 								+ "/product";
 
 						window.location.href = url;
-						alert('something');
 					});
 
 			$('.catproduct').each(

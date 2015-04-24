@@ -6,8 +6,8 @@
             [postal.core :refer [send-message]])
   (use estore.models.db))
 
-(def email "stefannikolic989@gmail.com")
-(def pass "lespaul1989")
+(def email "rasputinrampl@gmail.com")
+(def pass "Sn123.~!@")
 
 (def conn {:host "smtp.gmail.com"
            :ssl true
@@ -415,7 +415,7 @@
                                "The products you ordered will be shipped to your address very soon"
                                "\n"
                                "Thank you for your loyalty"
-                               )})(home))
+                               )})(session/remove! :basket)(home))
  (GET "/cart" [] (cart-page))
 (GET "/profile/:id" [id] (profile-page id))
 (GET "/orders/:id" [id] (orders-page id))
