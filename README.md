@@ -1,7 +1,5 @@
 # estore
 
-FIXME
-
 ## Prerequisites
 
 You will need [Leiningen][1] 1.7.0 or above installed.
@@ -9,6 +7,8 @@ You will need [Leiningen][1] 1.7.0 or above installed.
 [1]: https://github.com/technomancy/leiningen
 
 ## Running
+
+Import project to eclipse as a Leiningen project
 
 Database is in root of the project called estore.sql, import it into mysql
 
@@ -22,8 +22,9 @@ Initial settings for database are:
 Database contains some initial data so you can immediately start with application
 
 Default user is:
-    username: stefan
-    password: nikolic
+
+    - username: stefan
+    - password: nikolic
 
 To start a web server for the application, run:
 
@@ -47,4 +48,4 @@ This is a demo application for ecommerce store. Some of core functionalities are
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015
