@@ -18,6 +18,12 @@ Initial settings for database are:
     - :subname "//localhost:3306/estore"
     - :user "root"
     - :password ""
+    
+Database contains some initial data so you can immediately start with application
+
+Default user is:
+    username: stefan
+    password: nikolic
 
 To start a web server for the application, run:
 
